@@ -1,0 +1,149 @@
+{
+ "dinawari-2020": {
+  "kind": "typed",
+  "pages": 90,
+  "empty": 0,
+  "gaps": 1,
+  "known": 99.4
+ },
+ "dinawari-2025": {
+  "kind": "typed",
+  "pages": 255,
+  "empty": 6,
+  "gaps": 9,
+  "known": 97.4
+ },
+ "fadail": {
+  "kind": "typed",
+  "pages": 387,
+  "empty": 5,
+  "gaps": 6,
+  "known": 96.8
+ },
+ "fiqh-azhariyya": {
+  "kind": "OCR",
+  "pages": 86,
+  "empty": 2,
+  "gaps": 1,
+  "known": 89.7
+ },
+ "fiqh-iraq": {
+  "kind": "OCR",
+  "pages": 110,
+  "empty": 5,
+  "gaps": 7,
+  "known": 86.5
+ },
+ "kardari": {
+  "kind": "typed",
+  "pages": 521,
+  "empty": 1,
+  "gaps": 11,
+  "known": 94.0
+ },
+ "kashf": {
+  "kind": "typed",
+  "pages": 1265,
+  "empty": 2,
+  "gaps": 5,
+  "known": 96.5
+ },
+ "khayrat": {
+  "kind": "typed",
+  "pages": 245,
+  "empty": 0,
+  "gaps": 3,
+  "known": 98.1
+ },
+ "khayrat-1324": {
+  "kind": "OCR",
+  "pages": 87,
+  "empty": 2,
+  "gaps": 16,
+  "known": 81.4
+ },
+ "khayrat-huda": {
+  "kind": "typed",
+  "pages": 189,
+  "empty": 4,
+  "gaps": 3,
+  "known": 98.4
+ },
+ "makki": {
+  "kind": "typed",
+  "pages": 502,
+  "empty": 1,
+  "gaps": 19,
+  "known": 98.1
+ },
+ "maqalat": {
+  "kind": "OCR",
+  "pages": 561,
+  "empty": 1,
+  "gaps": 0,
+  "known": 84.2
+ },
+ "maqalat-bannuri": {
+  "kind": "OCR",
+  "pages": 640,
+  "empty": 2,
+  "gaps": 2,
+  "known": 82.2
+ },
+ "tabyid": {
+  "kind": "typed",
+  "pages": 50,
+  "empty": 0,
+  "gaps": 0,
+  "known": 98.3
+ },
+ "tabyid-arqam": {
+  "kind": "typed",
+  "pages": 158,
+  "empty": 1,
+  "gaps": 0,
+  "known": 97.6
+ },
+ "tabyid-ilmiyya": {
+  "kind": "OCR",
+  "pages": 133,
+  "empty": 6,
+  "gaps": 1,
+  "known": 81.7
+ },
+ "tanib": {
+  "kind": "OCR",
+  "pages": 481,
+  "empty": 7,
+  "gaps": 0,
+  "known": 91.3
+ },
+ "uqud": {
+  "kind": "typed",
+  "pages": 422,
+  "empty": 0,
+  "gaps": 1,
+  "known": 97.2
+ },
+ "uqud-thesis": {
+  "kind": "OCR",
+  "pages": 439,
+  "empty": 0,
+  "gaps": 25,
+  "known": 81.8
+ },
+ "zaranjari": {
+  "kind": "typed",
+  "pages": 70,
+  "empty": 0,
+  "gaps": 1,
+  "known": 99.2
+ },
+ "zaranjari-hanbali": {
+  "kind": "typed",
+  "pages": 233,
+  "empty": 3,
+  "gaps": 17,
+  "known": 97.2
+ }
+}

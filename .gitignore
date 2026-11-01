@@ -1,0 +1,27 @@
+# Maktaba: only the code and the small catalogs are tracked.
+# Books, scans, OCR output, the index (library.db) and the venv stay out: they are gigabytes.
+/*
+!/.gitignore
+!/*.py
+!/*.sh
+!/*.json
+!/maktaba/
+!/colab/
+!/find/
+!/cand/
+
+# find/ and cand/ are mostly OCR pages and PDFs: keep their scripts only.
+/find/*
+!/find/*.py
+!/find/*.sh
+/cand/*
+!/cand/*.sh
+
+# These two hold the OCR worker key (ocr_api.py serves them to Colab/Kaggle). Never commit them.
+/colab/run.sh
+/colab/laptop.sh
+
+# The .bak-before-... copies were the old way to undo; git does that now.
+*.bak
+*.bak-*
+__pycache__/

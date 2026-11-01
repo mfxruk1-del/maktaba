@@ -1,0 +1,257 @@
+[
+ {
+  "id": "kashf",
+  "title": "كشف الآثار الشريفة في مناقب الإمام أبي حنيفة",
+  "note": "al-Ḥārithī · scans for the typed edition (OCR finished overnight)"
+ },
+ {
+  "id": "maqalat-bannuri",
+  "cand": "maqalat-askzad.pdf",
+  "title": "مقالات الكوثري",
+  "note": "Edition with al-Bannūrī's introduction · high-resolution scan"
+ },
+ {
+  "id": "fiqh-azhariyya",
+  "cand": "fiqh-4157.pdf",
+  "title": "فقه أهل العراق وحديثهم",
+  "note": "Stand-alone Cairo printing (~2009) · 439-dpi scan"
+ },
+ {
+  "id": "uqud-thesis",
+  "cand": "uqud-3.pdf",
+  "title": "عقود الجمان في مناقب الإمام الأعظم",
+  "note": "Critical edition, master's thesis, King Abdulaziz University"
+ },
+ {
+  "id": "khayrat-1324",
+  "cand": "khayrat-1324.pdf",
+  "title": "الخيرات الحسان في مناقب الإمام الأعظم",
+  "note": "Old Cairo print, 1324 AH · low-resolution scan (may be too rough)"
+ },
+ {
+  "id": "tabyid-hyd",
+  "cand": "tabyid-hyd.pdf",
+  "title": "تبييض الصحيفة بمناقب أبي حنيفة",
+  "note": "Another editor's edition · low-resolution scan (may be too rough)"
+ },
+ {
+  "id": "dhakhira-11",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 11 of 15"
+ },
+ {
+  "id": "muhit-radawi-6",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 6 of 9"
+ },
+ {
+  "id": "dhakhira-01",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 1 of 15"
+ },
+ {
+  "id": "dhakhira-02",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 2 of 15"
+ },
+ {
+  "id": "dhakhira-03",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 3 of 15"
+ },
+ {
+  "id": "dhakhira-04",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 4 of 15"
+ },
+ {
+  "id": "dhakhira-05",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 5 of 15"
+ },
+ {
+  "id": "dhakhira-06",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 6 of 15"
+ },
+ {
+  "id": "dhakhira-07",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 7 of 15"
+ },
+ {
+  "id": "dhakhira-08",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 8 of 15"
+ },
+ {
+  "id": "dhakhira-09",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 9 of 15"
+ },
+ {
+  "id": "dhakhira-10",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 10 of 15"
+ },
+ {
+  "id": "dhakhira-12",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 12 of 15"
+ },
+ {
+  "id": "dhakhira-13",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 13 of 15"
+ },
+ {
+  "id": "dhakhira-14",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 14 of 15"
+ },
+ {
+  "id": "dhakhira-15",
+  "title": "الذخيرة البرهانية",
+  "note": "Ibn Mazah · Dar al-Kutub al-'Ilmiyya · vol 15 of 15"
+ },
+ {
+  "id": "muhit-radawi-1",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 1 of 9"
+ },
+ {
+  "id": "muhit-radawi-2",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 2 of 9"
+ },
+ {
+  "id": "muhit-radawi-3",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 3 of 9"
+ },
+ {
+  "id": "muhit-radawi-4",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 4 of 9"
+ },
+ {
+  "id": "muhit-radawi-5",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 5 of 9"
+ },
+ {
+  "id": "muhit-radawi-7",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 7 of 9"
+ },
+ {
+  "id": "muhit-radawi-8",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 8 of 9"
+ },
+ {
+  "id": "muhit-radawi-9",
+  "title": "المحيط الرضوي",
+  "note": "Radi al-Din al-Sarakhsi · vol 9 of 9"
+ },
+ {
+  "id": "tatarkhaniyya-01",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 1 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-02",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 2 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-04",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 4 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-05",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 5 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-06",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 6 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-07",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 7 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-08",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 8 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-09",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 9 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-10",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 10 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-12",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 12 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-13",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 13 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-15",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 15 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-16",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 16 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-17",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 17 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-18",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 18 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-19",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 19 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-20",
+  "title": "الفتاوى التاتارخانية",
+  "note": "Zakariyya ed. (tahqiq Shabbir Ahmad al-Qasimi) · vol 20 of 20 · born-digital PDF"
+ },
+ {
+  "id": "tatarkhaniyya-03",
+  "title": "الفتاوى التاتارخانية ج 3 (ط. زكريا، تحقيق شبير أحمد القاسمي)",
+  "note": "Hanafi research: full-volume OCR"
+ },
+ {
+  "id": "tatarkhaniyya-11",
+  "title": "الفتاوى التاتارخانية ج 11 (ط. زكريا، تحقيق شبير أحمد القاسمي)",
+  "note": "Hanafi research: full-volume OCR"
+ },
+ {
+  "id": "tatarkhaniyya-14",
+  "title": "الفتاوى التاتارخانية ج 14 (ط. زكريا، تحقيق شبير أحمد القاسمي)",
+  "note": "Hanafi research: full-volume OCR"
+ }
+]
