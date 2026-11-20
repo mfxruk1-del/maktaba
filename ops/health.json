@@ -1,0 +1,15 @@
+{
+ "disk_warn": 85,
+ "disk_critical": 92,
+ "growth_gb_per_hour": 8,
+ "systemd": ["shamela-sem", "maktaba"],
+ "containers": [],
+ "http": [["meaning-search", "http://127.0.0.1:8791/health", "\"loaded\":true"]],
+ "tcp": [["maktaba connector", "127.0.0.1", 8790]],
+ "backup_max_age_hours": 30,
+ "offsite_max_age_days": 3,
+ "remind_hours": 24,
+ "confirm_runs": 2,
+ "heartbeat_weekday": 6,
+ "heartbeat_hour_utc": 7
+}

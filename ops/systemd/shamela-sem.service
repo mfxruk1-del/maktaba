@@ -1,0 +1,16 @@
+[Unit]
+Description=Shamela meaning-search service (local only, 127.0.0.1:8791; used by the Maktaba MCP server)
+After=network.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__HOME__/semsearch
+Environment=HF_HUB_OFFLINE=1
+Environment=TOKENIZERS_PARALLELISM=false
+ExecStart=__HOME__/semsearch/venv/bin/python service.py
+Restart=on-failure
+RestartSec=10
+MemoryMax=10G
+
+[Install]
+WantedBy=multi-user.target

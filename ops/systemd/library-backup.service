@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly backup of the research library (__HOME__/backups/backup.py)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 __HOME__/backups/backup.py
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=3h

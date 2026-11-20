@@ -1,0 +1,26 @@
+# personal settings and data never go into the repository
+profile.md
+labels.json
+*.env
+data/
+data_maktaba/
+data_kutub/
+*.sqlite3
+catalog.json
+catalog_check.txt
+overlap_check.json
+out/
+pages/*.sqlite3*
+findings/
+backup/
+backups/
+nightly/
+guard/
+status/
+ALERTS.log
+*.db
+*.log
+*.bak*
+__pycache__/
+venv/
+*-venv/

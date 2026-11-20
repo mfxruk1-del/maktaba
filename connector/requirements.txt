@@ -1,0 +1,6 @@
+# Tested Nov 2026 with: mcp 1.30.0, pillow 12.3.0, starlette 1.7.0, uvicorn 0.54.0.
+mcp>=1.30,<2        # version 2 renamed the server class this code uses
+pillow
+starlette
+uvicorn
+# only for bok_to_jsonl.py (old Shamela .bok files):  access-parser

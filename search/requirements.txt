@@ -1,0 +1,11 @@
+# Tested Nov 2026 on Ubuntu 22.04 ARM64 with: numpy 2.2.6, torch 2.14.1 (CPU), sentence-transformers 6.3.0, transformers 5.20.2,
+# tantivy 0.26.2, starlette 1.7.0, uvicorn 0.54.0, huggingface_hub 2.4.0.
+# Install the CPU build of torch FIRST (install.sh does it):  pip install torch --index-url https://download.pytorch.org/whl/cpu
+# The default torch pulls several GB of GPU libraries that a search server does not use.
+numpy
+torch
+sentence-transformers
+tantivy
+starlette
+uvicorn
+huggingface_hub

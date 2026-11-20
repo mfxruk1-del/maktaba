@@ -1,0 +1,11 @@
+{
+ "_about": "Authors whose pages are SHOWN WITH A LABEL in search results (field author_note). Nothing is hidden. Copy this file to labels.json and edit it; the next search uses it, no restart needed. An author's name must be written exactly as the index writes it (the semantic_books tool shows the names). The optional \"kutub_slugs\" lists the same authors by their author slug in the third library, which writes names in Latin letters.",
+ "labels": [
+  {
+   "id": "example",
+   "note": "the note that will appear on every result from these authors",
+   "authors": ["اسم المؤلف كما في الفهرس"],
+   "kutub_slugs": ["author-slug-as-the-third-library-writes-it"]
+  }
+ ]
+}

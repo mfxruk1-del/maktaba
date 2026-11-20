@@ -1,0 +1,6 @@
+[Unit]
+Description=Server watch: disk, services, backups (__HOME__/backups/health.py)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 __HOME__/backups/health.py

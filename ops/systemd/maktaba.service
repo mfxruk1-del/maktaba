@@ -1,0 +1,15 @@
+[Unit]
+Description=Maktaba library MCP server
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__HOME__/library/maktaba
+EnvironmentFile=/etc/maktaba.env
+ExecStart=__HOME__/library/maktaba-venv/bin/python server.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
