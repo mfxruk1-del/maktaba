@@ -52,14 +52,15 @@ def pick(p):
     in Shamela) | "kutub" (the Kutub works whose text was not found in Shamela; keyword-only as long as that index has no vectors)."""
     s = searcher(); lib = str(p.get("library") or "shamela").lower()
     if lib in ("shamela", ""): return s, "shamela"
-    if lib not in LIBS: raise KeyError("library must be shamela, maktaba or kutub")
+    if lib == "kutub": lib = "maktaba"                     # since 20 Nov 2026 the imported books are part of the Maktaba library
+    if lib not in LIBS: raise KeyError("library must be shamela or maktaba")
     key, folder, name = ("mk", MK_DIR, "Maktaba") if lib == "maktaba" else ("kt", KT_DIR, "Kutub")
     with LOAD:
         if STATE.get(key) is None:
             if not os.path.isdir(folder): raise RuntimeError("the %s index is not on this server yet" % name)
             m = semcore.Searcher(folder, load_model=False); m.model = s.model; m.flag_editor = False
             m.by_sid = {b["shamela_id"]: b for b in m.books}
-            m.folded = {b["shamela_id"]: fold(b.get("author")) + " | " + fold(b.get("author_slug")) for b in m.books} if lib == "kutub" else {}
+            m.folded = {b["shamela_id"]: fold(b.get("author_latin") or b.get("author")) + " | " + fold(b.get("author_slug")) for b in m.books}
             STATE[key] = m
     return STATE[key], lib
 
@@ -77,7 +78,8 @@ def lib_category(lib, p):
     with a clear message instead of being ignored or quietly matching nothing."""
     c = p.get("category") or None
     if lib == "shamela" or c is None: return c
-    kind = {"typed": "typed", "ocr": "OCR"}.get(str(c).strip().lower()) if lib == "maktaba" else None
+    if lib == "maktaba": return {"typed": "typed", "ocr": "OCR", "imported": "imported"}.get(str(c).strip().lower(), c)      # a kind of text, or a shelf name (both stand in cat_name)
+    kind = None
     if kind: return kind
     raise KeyError('category: library "kutub" has no categories (narrow it with author, books, died_after / died_before)' if lib == "kutub" else
                    'category: library "maktaba" knows only "typed" and "OCR", not Shamela\'s categories')
@@ -94,9 +96,9 @@ def lib_scope(s, lib, p):
         hit = [b["shamela_id"] for b in s.books if name in ((b.get("maktaba_id"), b.get("work")) if lib == "maktaba" else (b.get("kutub_slug"),))]
         if not hit: raise KeyError("no book '%s' in the %s index (semantic_books with library=\"%s\" lists them)" % (name, lib, lib))
         ids += hit
-    if lib == "kutub" and author:
+    if lib in ("kutub", "maktaba") and author:
         a = semcore.norm(author).strip() if re.search("[ء-ي]", author) else ""; f = fold(author)
-        hit = {b["shamela_id"] for b in s.books if (a and a in semcore.norm(b.get("author_ar") or "")) or (f and f in s.folded[b["shamela_id"]])}
+        hit = {b["shamela_id"] for b in s.books if (a and a in semcore.norm((b.get("author_ar") or "") + " " + (b.get("author") or ""))) or (f and f in s.folded[b["shamela_id"]])}
         if not hit:
             return {"error": "no Kutub author matches '%s'. Kutub names its authors in Latin letters (try part of the name or of the author slug, e.g. \"ibn "
                              "taymiyya\"); the Arabic name is known only for authors who also have a book in Shamela. semantic_books(library=\"kutub\", title=...) "
@@ -113,7 +115,11 @@ def mk_rows(s, r):
         b = ids.get(x.get("shamela_id"))
         if b is None: return x
         y = {"library": "maktaba", "book": b["maktaba_id"], "page": x.get("shamela_page_id"), "printed_page": x.get("page") if (x.get("page") or -1) >= 0 else None,
-             "title": b["title"], "author": b["author"], "died_ah": b["death"], "edition": b.get("edition"), "text_kind": b["cat_name"].replace("Maktaba ", "")}
+             "title": b["title"], "author": b["author"], "died_ah": b["death"], "edition": b.get("edition"), "text_kind": b.get("kind") or b["cat_name"].replace("Maktaba ", "")}
+        if (x.get("part") or -1) > 0: y["volume"] = x["part"]
+        for k_ in ("shelf", "edition_of", "author_latin"):
+            if b.get(k_): y[k_] = b[k_]
+        if b.get("flag"): y["book_note"] = b["flag"]
         for k, v in x.items():
             if k not in ("shamela_id", "shamela_page_id", "part", "page", "title", "author", "died_ah", "category"): y[k] = v
         if "same_words_in" in y: y["same_words_in"] = [fix(z) for z in y["same_words_in"]]
@@ -121,14 +127,16 @@ def mk_rows(s, r):
     r["results"] = [fix(x) for x in r.get("results", [])]
     if "by_book" in r:
         r["by_book"] = [dict({k: v for k, v in x.items() if k != "shamela_id"}, book=ids[x["shamela_id"]]["maktaba_id"]) if x.get("shamela_id") in ids else x for x in r["by_book"]]
-    r["library"] = "maktaba: open a result with Maktaba's get_page(book, page); OCR editions must be checked against the scan before quoting"
+    r["library"] = ("maktaba: open a result with Maktaba's get_page(book, page); OCR editions must be checked against the scan before quoting; text_kind \"imported\" = an "
+                    "imported book (mostly machine-read, no scan, editors' notes not split): check its wording with check_quote; edition_of names the Shamela work it is another edition of")
     return r
 
 
-KT_NOTE = ("kutub: works whose text was not found in Shamela (checked by title and by content, by machine). Open a result with kutub_read_page(book, page) "
-           "and check wording with check_quote(library=\"kutub\"). Kutub records no school or sect for its authors: it holds Imami, Zaydi and Ibadi works beside "
-           "Sunni ones, and typed text beside machine-read text (editors' notes not split off, no chapter path). Say who the author is before relying on a "
-           "page; the owner's labels cover only the authors on his list")
+KT_NOTE = ("kutub: books by Sunni authors: works that Shamela lacks, and other editions of works it has (sorted on 20 Nov 2026 by machine and by name lists, not checked book by book). "
+           "Open a result with kutub_read_page(book, page) and check wording with check_quote(library=\"kutub\"). \"shelf\" is the subject shelf (Shamela's category "
+           "names, found by machine, about 7 in 10 right); \"edition_of\" names the Shamela work this book is another edition of. Typed text stands beside "
+           "machine-read text (editors' notes not split off, no chapter path). Say who the author is before relying on a page; the owner's labels cover only "
+           "the authors on his list")
 
 
 def kt_rows(s, r):
@@ -141,6 +149,9 @@ def kt_rows(s, r):
              "title": b["title"], "author": b.get("author"), "died_ah": b.get("death")}
         if b.get("author_ar"): y["author_ar"] = b["author_ar"]
         if b.get("maybe_shamela_id"): y["maybe_also_in_shamela"] = b["maybe_shamela_id"]
+        if b.get("cat_name") and b["cat_name"] != "Kutub": y["shelf"] = b["cat_name"]
+        if b.get("edition_of"): y["edition_of"] = b["edition_of"]
+        if b.get("flag"): y["book_note"] = b["flag"]
         for k, v in x.items():
             if k not in ("shamela_id", "shamela_page_id", "part", "page", "title", "author", "died_ah", "category", "from"): y[k] = v
         if "same_words_in" in y: y["same_words_in"] = [fix(z) for z in y["same_words_in"]]
@@ -170,11 +181,11 @@ def label_maps(s, lib="shamela"):
     if L is None or L["mtime"] != m:
         by = {}; short = {}
         for lab in json.load(open(LABEL_FILE, encoding="utf-8")).get("labels", []):
-            names = set(semcore.norm(a).strip() for a in lab.get("authors", [])); slugs = set(lab.get("kutub_slugs") or []) if lib == "kutub" else set()
+            names = set(semcore.norm(a).strip() for a in lab.get("authors", [])); slugs = set(lab.get("kutub_slugs") or []) if lib in ("kutub", "maktaba") else set()
             for b in s.books:
                 hit = semcore.norm(b.get("author") or "").strip() in names
                 if not hit and lib == "maktaba": hit = semcore.norm(re.sub(r"\s*\(.*?\)\s*$", "", b.get("author") or "")).strip() in names
-                if not hit and lib == "kutub": hit = b.get("author_slug") in slugs or (bool(b.get("author_ar")) and semcore.norm(b["author_ar"]).strip() in names)
+                if not hit and lib in ("kutub", "maktaba"): hit = b.get("author_slug") in slugs or (bool(b.get("author_ar")) and semcore.norm(b["author_ar"]).strip() in names)
                 if hit: by[b["shamela_id"]] = lab["note"]; short[b["shamela_id"]] = str(lab.get("short") or lab.get("id") or "listed")
         LABELS[lib] = L = {"mtime": m, "by_id": by, "short": short}
     return L
@@ -272,10 +283,11 @@ def do_books(p):
     if lib == "kutub":
         return {"matched": len(sel), "passages": int(sum(b["passages"] for b in sel)),
                 "books": [dict({"book": b["kutub_slug"], "title": b.get("title"), "author": b.get("author"), "author_slug": b.get("author_slug"), "died_ah": b.get("death"),
-                                "passages": b["passages"]}, **({"author_ar": b["author_ar"]} if b.get("author_ar") else {}),
+                                "passages": b["passages"]}, **({"author_ar": b["author_ar"]} if b.get("author_ar") else {}), **({"shelf": b["cat_name"]} if b.get("cat_name") not in (None, "Kutub") else {}),
+                               **({"edition_of": b["edition_of"].get("title")} if b.get("edition_of") else {}),
                                **({"maybe_also_in_shamela": b["maybe_shamela_id"]} if b.get("maybe_shamela_id") else {})) for b in rows[:limit]],
-                "library": "kutub: works whose text was not found in Shamela (checked by title and by content, by machine); authors are named in Latin letters "
-                           "(author_ar where the Arabic name is known) and no school or sect is recorded for them"}
+                "library": "kutub: books by Sunni authors, works that Shamela lacks and other editions of works it has (sorted by machine and by name lists, not checked book by book); authors are "
+                           "named in Latin letters (author_ar where the Arabic name is known); shelf = Shamela's category names, found by machine"}
     return {"matched": len(sel), "passages": int(sum(b["passages"] for b in sel)),
             "books": [{("book" if mk else "shamela_id"): (b["maktaba_id"] if mk else b["shamela_id"]), "title": b.get("title"), "author": b.get("author"),
                        "died_ah": None if b.get("death") is None or b["death"] >= 9000 else b["death"],

@@ -40,11 +40,12 @@ findings_add (save a passage only after its wording was checked on the Shamela p
 The server also holds its own copy of every Shamela book: shamela_read_page, shamela_check_quote and shamela_contents read a page,
 check a quote and list headings without the owner's PC. semantic_search and nearby_words leave the editors' footnotes out unless
 asked (footnotes="include"), and with library="maktaba" they search this Maktaba library by meaning or by nearby words.
-A third library, KUTUB (2,751 works whose text was not found in Shamela (checked by title and by content, by machine)), is searched
-with library="kutub" on search_digest, semantic_search, nearby_words and semantic_books. Open its
-results with kutub_read_page and check wording with check_quote (also for library="maktaba"). Kutub records no school or sect for its
-authors: it holds Imami, Zaydi and Ibadi works beside Sunni ones, and typed text beside machine-read text; say who the author is
-before relying on a page (the owner's labels cover only the authors on his list)."""
+Besides the owner's own editions (typed or OCR, with page scans) the library holds about 2,000 IMPORTED books by Sunni authors (kind
+"imported": mostly machine-read, no scans, editors' notes not split, no chapter headings; sorted on 20 Nov 2026 by machine and by name
+lists, not checked book by book). They are works Shamela lacks, or other editions of works Shamela has: then the work id is
+"sh<Shamela id>" and results carry "edition_of". list_books(query=..., shelf=...) browses the catalogue; search, get_page and
+check_quote work on every book; search_digest, semantic_search and nearby_words reach them with library="maktaba". Before relying on a page of an imported book say who the author
+is (the owner's labels cover only the authors on his list). The catalogue as a web page: /library on this server."""
 
 # The owner's own research rules (profile.md beside this file; personal, not part of the public code). Added to the instructions when present.
 try:
@@ -72,6 +73,8 @@ mcp = FastMCP(
 def db():
     con = sqlite3.connect(f"file:{ROOT / 'library.db'}?mode=ro", uri=True)
     con.row_factory = sqlite3.Row
+    x = ROOT / "texts_extra.db"                      # the page texts of the imported books (read-only, beside library.db)
+    if x.exists(): con.execute("ATTACH DATABASE ? AS x", (f"file:{x}?mode=ro",))
     return con
 
 
@@ -86,8 +89,7 @@ def _book(con, book):
     if eds:
         raise ValueError(f"'{book}' is a work with several editions; pass one edition id: "
                          + ", ".join(r["id"] for r in eds) + f" (primary: {eds[0]['id']})")
-    ids = ", ".join(r["id"] for r in con.execute("SELECT id FROM books"))
-    raise ValueError(f"Unknown book '{book}'. Available editions: {ids}")
+    raise ValueError(f"Unknown book '{book}'. list_books(query=...) finds the edition ids.")
 
 
 def _edition_ids(con, book):
@@ -114,19 +116,35 @@ def _snippets(text, terms, max_lines=3):
 
 
 @mcp.tool()
-def list_books() -> list[dict]:
-    """List the library by work (like Shamela): each work with its editions (id, edition, source, kind,
-    pages, has_scans, primary). Use a work id in search() to search every edition of that work, or an
-    edition id for one edition; get_page/get_page_image take an edition id."""
+def list_books(query: str | None = None, shelf: str | None = None, own_only: bool = False, limit: int = 40) -> dict:
+    """Browse the library by WORK, each with its editions. With no arguments: the shelves with their number of works, and the owner's
+    own works in full. query: part of a title or an author's name (Arabic, or Latin letters for imported books). shelf: a shelf name
+    as the first call lists them (e.g. "الفقه الحنفي"). own_only: only the owner's own editions (typed or OCR, with scans).
+    Each work: work id, title, author, died, shelf, editions (id, kind "typed" / "OCR" / "imported", pages, primary, has_scans).
+    Use a work id in search() to search all its editions; get_page / get_page_image / check_quote take an edition id. A work id
+    "sh<number>" means: another edition of the Shamela book with that number."""
+    limit = max(1, min(int(limit), 200)); q = norm(query or "").strip(); ql = (query or "").strip().lower()
     with db() as con:
-        works = {}
+        cols = {r[1] for r in con.execute("PRAGMA table_info(books)")}; g = lambda r, k: r[k] if k in cols else None
+        works = {}; shelves = {}
         for r in con.execute("SELECT * FROM books ORDER BY work_title, primary_ed DESC, id"):
-            w = works.setdefault(r["work"], {"work": r["work"], "title": r["work_title"], "author": r["author"],
-                                             "editions": []})
-            w["editions"].append({"id": r["id"], "edition": r["edition"], "source": r["source"],
-                                  "kind": r["kind"], "pages": r["pages"], "has_scans": bool(r["img"]),
-                                  "primary": bool(r["primary_ed"])})
-        return list(works.values())
+            own = (g(r, "store") or "own") != "extra"
+            w = works.setdefault(r["work"], {"work": r["work"], "title": r["work_title"], "author": r["author"], "died": g(r, "died"), "shelf": g(r, "shelf"), "own": False, "editions": [], "_l": ""})
+            w["own"] = w["own"] or own; w["_l"] += " " + (g(r, "author_latin") or "").lower()
+            e = {"id": r["id"], "kind": r["kind"], "pages": r["pages"], "primary": bool(r["primary_ed"]), "has_scans": bool(r["img"])}
+            if own: e["edition"] = r["edition"]
+            if g(r, "shamela_id"): e["edition_of_shamela"] = r["shamela_id"]
+            if g(r, "note"): e["note"] = r["note"]
+            w["editions"].append(e)
+        for w in works.values(): shelves[w["shelf"] or "?"] = shelves.get(w["shelf"] or "?", 0) + 1
+        sel = list(works.values())
+        if own_only: sel = [w for w in sel if w["own"]]
+        if shelf: sel = [w for w in sel if (w["shelf"] or "") == shelf.strip()]
+        if q or ql: sel = [w for w in sel if (q and (q in norm(w["title"] or "") or q in norm(w["author"] or ""))) or (ql and ql in w["_l"])]
+        if not (query or shelf or own_only): sel = [w for w in sel if w["own"]]
+        out = [{k: v for k, v in w.items() if k not in ("_l", "own")} for w in sel[:limit]]
+    return {"works_in_library": len(works), "shelves": shelves, "matched": len(sel), "shown": len(out), "works": out,
+            "note": None if len(sel) <= limit else "more works match: narrow the query or raise limit (max 200)"}
 
 
 _PREFIXES = ("", "و", "ف", "ب", "ك", "ل", "وب", "ول", "وك", "فب", "فل", "فك")
@@ -150,6 +168,27 @@ def _near(tokens, sets, distance):
         if all(any(abs(j - i) <= distance for j in p) for p in pos[1:]):
             return True
     return False
+
+
+def _has_extra(con):
+    return any(r[1] == "x" for r in con.execute("PRAGMA database_list"))
+
+
+def _extra_rows(con, mode, terms, eds, limit, distance):
+    """Matches in the imported books (texts_extra.db has a whole-word index only: "phrase" = the words in sequence, "all" = words starting so)."""
+    where, params = "", []
+    if eds:
+        where = f" AND p.book IN ({','.join('?' * len(eds))})"; params = list(eds)
+    sets = [_variants(t) for t in terms]
+    if mode in ("word", "near"): fts = " AND ".join("(" + " OR ".join(f'"{v}"' for v in sorted(vs)) + ")" for vs in sets)
+    elif mode == "phrase": fts = '"' + " ".join(terms) + '"'
+    else: fts = " AND ".join(f'"{t}"*' for t in terms)
+    sql = ("SELECT p.book, p.page, p.printed, p.text FROM x.pages p WHERE p.rowid IN (SELECT rowid FROM x.pages_words WHERE pages_words MATCH ?)"
+           + where + " ORDER BY p.book, p.page LIMIT ?")
+    try: rows = con.execute(sql, [fts] + params + [1500 if mode == "near" else limit]).fetchall()
+    except sqlite3.OperationalError: return []
+    if mode == "near" and len(terms) > 1: rows = [r for r in rows if _near(norm(r["text"]).split(), sets, distance)]
+    return rows[:limit]
 
 
 @mcp.tool()
@@ -202,6 +241,8 @@ def search(query: str, book: str | None = None, mode: str = "phrase", limit: int
                        "WHERE pages_fts MATCH ?" + where + " ORDER BY p.book, p.page LIMIT ?")
                 rows = con.execute(sql, [fts] + params + [limit]).fetchall()
             match_terms = [q] if mode == "phrase" else terms
+        if len(rows) < limit and _has_extra(con):
+            rows = list(rows) + _extra_rows(con, mode, terms, eds if book else None, limit - len(rows), distance)
         work = {r["id"]: r["work"] for r in con.execute("SELECT id, work FROM books")}
         hits = [{"work": work.get(r["book"]), "book": r["book"], "page": r["page"], "printed_page": r["printed"],
                  "lines": _snippets(r["text"], match_terms)} for r in rows]
@@ -218,18 +259,19 @@ def get_page(book: str, page: int = 0, context: int = 0, printed: str | None = N
     context = max(0, min(context, 3))
     with db() as con:
         b = _book(con, book)
+        tbl = "x.pages" if "store" in b.keys() and b["store"] == "extra" and _has_extra(con) else "pages"
         if printed:
-            r = con.execute("SELECT page FROM pages WHERE book=? AND printed=? ORDER BY page LIMIT 1",
+            r = con.execute(f"SELECT page FROM {tbl} WHERE book=? AND printed=? ORDER BY page LIMIT 1",
                             (b["id"], str(printed))).fetchone()
             if not r:
                 raise ValueError(f"{b['id']} has no printed page '{printed}'")
             page = r["page"]
-        rows = con.execute("SELECT page, printed, text FROM pages WHERE book=? AND page BETWEEN ? AND ? "
+        rows = con.execute(f"SELECT page, printed, text FROM {tbl} WHERE book=? AND page BETWEEN ? AND ? "
                            "ORDER BY page", (b["id"], page - context, page + context)).fetchall()
         pages = [{"page": r["page"], "printed_page": r["printed"], "text": r["text"],
                   "links": _links(con, b["id"], r["page"])} for r in rows]
     if not rows:
-        raise ValueError(f"{b['id']} has pages 1-{b['pages']}")
+        raise ValueError(f"{b['id']} has pages 1-{b['pages']}" if tbl == "pages" else f"{b['id']} has pages 0-{b['pages'] - 1}")
     return {"book": b["id"], "work": b["work"], "title": b["work_title"], "edition": b["edition"], "source": b["source"],
             "pages": pages}
 
@@ -287,6 +329,13 @@ def get_page_image(book: str, page: int) -> Image:
     buf = io.BytesIO()
     im.save(buf, "JPEG", quality=72, optimize=True)
     return Image(data=buf.getvalue(), format="jpeg")
+
+
+@mcp.custom_route("/library", methods=["GET"])
+async def catalogue(request):
+    from starlette.responses import HTMLResponse
+    import catalogue_page
+    return HTMLResponse(catalogue_page.render())
 
 
 @mcp.custom_route("/", methods=["GET"])

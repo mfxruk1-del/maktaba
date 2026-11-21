@@ -34,6 +34,8 @@ def scopes_of(raw, lib="shamela"):
             part = part.strip()
             if not part: continue
             key, _, val = part.partition(":"); key = key.strip().lower(); val = val.strip()
+            if lib == "maktaba" and (not val or key == "category"):                    # a shelf name, or a kind of text
+                v = val or part; d["category"] = {"typed": "typed", "ocr": "OCR", "imported": "imported"}.get(v.lower(), v); continue
             if lib != "shamela" and (not val or key == "category"): raise KeyError(NOCAT % part)
             if not val: d["category"] = SHORT.get(key, part)
             elif key == "category": d["category"] = SHORT.get(val.lower(), val)
@@ -62,7 +64,7 @@ def ref2(x):
 OPEN = {"maktaba": 'Open a page: Maktaba\'s get_page(book, page) with the id and the number after "book" and "page"; OCR editions must be checked against the '
                    'scan. Candidates, not quotes.',
         "kutub": 'Open a page: kutub_read_page(book, page) with the slug and the number after "book" and "page". Candidates, not quotes: check the wording with '
-                 'check_quote(library="kutub"). Kutub records no school or sect for its authors: Imami, Zaydi and Ibadi works stand beside Sunni ones, and typed '
+                 'check_quote(library="kutub"). Kutub now holds works by Sunni authors only (sorted by machine and by name lists, not checked book by book); typed '
                  'text beside machine-read text. Say who the author is before relying on a page; the owner\'s labels cover only the authors on his list.'}
 
 

@@ -4,6 +4,7 @@ data/ and data_maktaba/ but WITHOUT vec256.i8.
 
    nice -n 10 ~/semsearch/venv/bin/python ~/semsearch/kutub/kt_build.py --skip-twins      (6 minutes; this is how the index in use was built)
    ... kt_build.py                every catalogue book that is not in Shamela BY TITLE (4,727 books, 15 minutes): the first pass
+   ... kt_build.py --sorted       exactly the books kept by ~/kutub/sort_decide.py (sorted.json): the index in use since the evening of 20 Nov 2026
    ... kt_build.py --project      only print the projected sizes and stop
 The order from nothing: ~/kutub/catalog.py (titles) -> kt_build.py (full index) -> ~/kutub/overlap_check.py (which of those books have their
 text in Shamela under another title: 1,975 on 20 Nov 2026) -> kt_build.py --skip-twins (2,751 books, 2,296,918 passages).
@@ -81,6 +82,9 @@ def todo():
     """The catalogue's books that are not in Shamela by title. With --skip-twins (the owner's decision of 20 Nov 2026) also without the books
     whose text the content check found in Shamela (overlap_check.json): 2,752 books stay, the 1,975 left out are listed in that file."""
     cat = json.load(open(CATALOG, encoding="utf-8")); skip = set()
+    if "--sorted" in sys.argv:                               # exactly the books that sort_decide.py kept (KUTUB_HOME/sorted.json), each with its shelf and its work
+        srt = {d["slug"]: d for d in json.load(open(os.path.join(KUTUB_HOME, "sorted.json"), encoding="utf-8")) if d.get("keep")}
+        return sorted((dict(r, _sorted=srt[r["slug"]]) for r in cat if r["slug"] in srt), key=lambda r: r["slug"])
     if "--skip-twins" in sys.argv:
         sys.path.insert(0, HERE); import kt_twins; skip = set(kt_twins.twins())
     return sorted((r for r in cat if not r["in_shamela"] and r["slug"] not in skip), key=lambda r: r["slug"])
@@ -150,6 +154,11 @@ def main():
                                     "author": r.get("author"), "author_slug": r.get("author_slug"), "death": y if isinstance(y, int) and 0 < y <= NOW_AH else None,
                                     "cat": 200, "cat_name": "Kutub", "pages": r.get("pages_done"), "ranges": [[start, N]], "passages": N - start}
             if r.get("maybe_shamela_id"): b["maybe_shamela_id"] = r["maybe_shamela_id"]
+            d = r.get("_sorted")
+            if d:
+                b["cat_name"] = d.get("shelf") or "Kutub"; b["sorted_as"] = d.get("why")
+                for k in ("edition_of", "shares_text_with", "new_share", "flag", "own_library_work"):
+                    if d.get(k) is not None: b[k] = d[k]
             out.append(b)
         else: empty += 1
         if done % 500 == 0:

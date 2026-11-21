@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Step 3 of the Maktaba index: put the pieces into ~/semsearch/data_maktaba in the same file formats the big index uses, so
-semcore.Searcher can open it:  books.json, meta.npy, vec256.i8, texts.bin + text_offsets.npy, kw/ (tantivy).
-   ~/semsearch/venv/bin/python mk_assemble.py"""
+"""Step 3 of the Maktaba index: put the pieces (the owner's own books) into ~/semsearch/data_maktaba_own in the same file formats the big
+index uses, so semcore.Searcher can open it:  books.json, meta.npy, vec256.i8, texts.bin + text_offsets.npy, kw/ (tantivy).
+   ~/semsearch/venv/bin/python mk_assemble.py
+The index that is served, data_maktaba, is not touched here: step 4, mk_merge.py, joins these books with the imported ones into it."""
 import os, sys, json, zlib, shutil
 import numpy as np
 sys.path.insert(0, os.environ.get("SEM_HOME", os.path.expanduser("~/semsearch")))
 import semcore, tantivy
-HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(os.environ.get("SEM_HOME", os.path.expanduser("~/semsearch")), "data_maktaba"); TMP = OUT + ".building"
+HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(os.environ.get("SEM_HOME", os.path.expanduser("~/semsearch")), "data_maktaba_own"); TMP = OUT + ".building"
 rows = np.load(os.path.join(HERE, "rows.npy")); texts = json.load(open(os.path.join(HERE, "texts.json"), encoding="utf-8")); N = len(texts)
 books = json.load(open(os.path.join(HERE, "books.json"), encoding="utf-8")); assert len(rows) == N
 vecs = [np.frombuffer(open(os.path.join(HERE, "out", f), "rb").read(), dtype=np.int8).reshape(-1, semcore.DIM) for f in sorted(os.listdir(os.path.join(HERE, "out"))) if f.endswith(".i8")]
@@ -30,4 +31,4 @@ w.commit(); w.wait_merging_threads()
 if os.path.exists(OUT): shutil.rmtree(OUT + ".old", ignore_errors=True); os.rename(OUT, OUT + ".old")
 os.rename(TMP, OUT)
 s = semcore.Searcher(OUT, load_model=False); t = s.texts([0, N - 1])
-print("ASSEMBLED passages", s.N, "books", len(s.books), "| first and last text read back:", t[0][:40], "|", t[N - 1][:40], "| keyword docs", s.ks.num_docs)
+print("ASSEMBLED passages", s.N, "books", len(s.books), "| first and last text read back:", t[0][:40], "|", t[N - 1][:40], "| keyword docs", s.ks.num_docs, "| next: mk_merge.py")

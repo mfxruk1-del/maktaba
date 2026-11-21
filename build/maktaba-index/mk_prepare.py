@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Step 1 of the Maktaba index: cut every page of ~/library/library.db into passages exactly as the Shamela build did
 (clean(): tags and diacritics off, spaces collapsed; chunk(): about 900 characters with 150 of overlap).
+Only the owner's own books: the imported ones (store 'extra') are already in the index and mk_merge.py carries them over.
    ~/semsearch/venv/bin/python mk_prepare.py   -> rows.npy, books.json, texts.json, ship/sNNN.json (passages for the GPU)"""
 import sqlite3, json, os, re
 import numpy as np
@@ -29,7 +30,7 @@ def chunk(text, size=900, overlap=150):
 
 con = sqlite3.connect("file:%s?mode=ro" % os.environ.get("MAKTABA_DB", os.path.expanduser("~/library/library.db")), uri=True); con.row_factory = sqlite3.Row
 rows = []; texts = []; books = []
-for n, b in enumerate(con.execute("SELECT * FROM books ORDER BY id"), 1):
+for n, b in enumerate(con.execute("SELECT * FROM books WHERE store IS NOT 'extra' ORDER BY id"), 1):
     a = len(rows); m = re.search(r"ت\s*(\d{3,4})", b["author"] or ""); death = int(m.group(1)) if m else None
     for p in con.execute("SELECT page, printed, text FROM pages WHERE book=? ORDER BY page", (b["id"],)):
         try: printed = int(str(p["printed"]).strip())

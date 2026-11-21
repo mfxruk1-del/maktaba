@@ -13,6 +13,7 @@ SEM_URL = os.environ.get("MAKTABA_SEM_URL", "http://127.0.0.1:8791")
 
 
 def _call(path, payload, timeout=150):
+    if isinstance(payload, dict) and payload.get("library") == "kutub": payload["library"] = "maktaba"     # one library since 20 Nov 2026
     req = urllib.request.Request(SEM_URL + path, data=json.dumps(payload).encode("utf-8"), headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -58,9 +59,9 @@ def register(mcp):
         lines are candidates, not quotes, and an empty scope never proves absence. To dig deeper in one scope, use nearby_words or
         semantic_search there.
 
-        library: "shamela" (default), "maktaba" (the owner's own books) or "kutub" (2,751 works whose text was not found in
-        Shamela). There: no categories; scopes are "author:..." (Kutub: Latin letters),
-        "books:id1,id2", dates or none; lines end "book <id> page <n>": open with get_page / kutub_read_page.
+        library: "shamela" (default) or "maktaba" (the owner's library: his own editions and about 2,000 imported Sunni books).
+        There: scopes are "author:..." (Arabic, or Latin letters for imported books), a shelf name, "books:id1,id2", dates or none;
+        lines end "book <id> page <n>": open with get_page.
 
         MEASURED 20 Nov 2026 on ten questions in 40 scopes, with the readers' marks. Two full lists of 25 (80 calls, 1.71 million
         characters): a direct passage in 40 scopes, from three or more books in 38. This tool with books=10 (10 calls, 124,000
@@ -135,7 +136,6 @@ def register(mcp):
             or OCR). Maktaba results name a `book` and a `page` to open with Maktaba's get_page, not Shamela ids; there
             the filters are author, died_after / died_before and `category` "typed" or "OCR", and all its books are searched
             by default. OCR text must be checked against the page scan before quoting.
-            "kutub": the third library (works not found in Shamela), searched by meaning like the others.
           books: maktaba / kutub only: book ids / slugs to search in.
           mode: "hybrid" (meaning + keyword, default), "meaning" or "keyword".
           limit: number of results, 1-25 (default 8). chars: characters of each passage to return, 80-900.
@@ -205,7 +205,7 @@ def register(mcp):
           window: how many words apart the words may stand (default 8; 2-4 for a fixed formula, up to 40).
           shamela_ids, author, category, died_after, died_before, footnotes, library: as in semantic_search
             (footnotes are left out by default; library="maktaba" searches the owner's Maktaba library instead).
-            library="kutub": the third library; books: as in semantic_search.
+            books: as in semantic_search.
           preset: as in semantic_search ("auto" = classical authors only unless you name books, an author or dates).
           sort: "best" (default), "mixed", "oldest" or "relevance". "mixed" is "best" with every fifth place given to the
             oldest author not yet shown: use it when the earliest sources matter. Measured 20 Nov 2026 on eleven questions:
@@ -234,8 +234,7 @@ def register(mcp):
         """List the Shamela books the search index covers that match the filters (largest first), with their
         shamela_id, author as Shamela writes it, death year, category and number of passages. Use it to find the right
         shamela_ids or the exact author spelling before calling semantic_search or nearby_words. Text filters are
-        Arabic substrings. library="maktaba" lists the books of the owner's Maktaba library that the search covers.
-        library="kutub": the Kutub works (book = slug)."""
+        Arabic substrings. library="maktaba" lists the books of the owner's Maktaba library that the search covers."""
         if library not in LIBRARIES: return {"error": 'library must be "shamela", "maktaba" or "kutub"'}
         return _call("/books", {"author": author, "title": title, "category": category, "died_after": died_after,
                                 "died_before": died_before, "limit": limit, "library": library}, timeout=60)
@@ -337,15 +336,6 @@ def register(mcp):
         return _call("/contents", {"shamela_id": shamela_id, "query": query, "limit": limit}, timeout=30)
 
     @mcp.tool()
-    def kutub_read_page(book: str, page: int | None = None, volume: int | None = None, printed_page: int | None = None,
-                        context: int = 0, around: str | None = None, chars: int = 6000) -> dict:
-        """A page of a Kutub book: book = slug, page = a result's `page` (or volume + printed_page); context, around: as in shamela_read_page."""
-        return _call("/kutub/page", {"book": book, "page": page, "volume": volume, "printed_page": printed_page, "context": context,
-                                     "around": around, "chars": chars}, timeout=30)
-
-    @mcp.tool()
-    def check_quote(library: str, book: str, quote: str, page: int | None = None) -> dict:
-        """shamela_check_quote for library "maktaba" (book = edition id) or "kutub" (book = slug); no page = the whole book."""
-        lib = (library or "").lower()
-        if lib not in ("maktaba", "kutub"): return {"error": 'library must be "maktaba" or "kutub" (for a Shamela book use shamela_check_quote)'}
-        return _call("/mk/quote" if lib == "maktaba" else "/kutub/quote", {"book": book, "quote": quote, "page": page}, timeout=120)
+    def check_quote(book: str, quote: str, page: int | None = None) -> dict:
+        """shamela_check_quote for the Maktaba library (own and imported books): book = edition id; no page = the whole book."""
+        return _call("/mk/quote", {"book": book, "quote": quote, "page": page}, timeout=120)

@@ -163,6 +163,9 @@ def mk_check(book, quote, page=None):
     (the one get_page takes); given = that page and its neighbours, not given = the whole book."""
     if not os.path.exists(LIB_DB): return {"error": "the Maktaba library is not on this server"}
     con = sqlite3.connect("file:%s?mode=ro" % LIB_DB, uri=True); con.row_factory = sqlite3.Row
+    xp = os.path.join(os.path.dirname(LIB_DB), "texts_extra.db")           # the page texts of the imported books
+    if os.path.exists(xp): con.execute("ATTACH DATABASE ? AS x", ("file:%s?mode=ro" % xp,))
+    con.execute("CREATE TEMP VIEW allpages AS SELECT book, page, printed, text FROM main.pages" + (" UNION ALL SELECT book, page, printed, text FROM x.pages" if os.path.exists(xp) else ""))
     try:
         b = con.execute("SELECT * FROM books WHERE id=?", (str(book),)).fetchone()
         if b is None:
@@ -174,11 +177,11 @@ def mk_check(book, quote, page=None):
         if len(_keys(quote)) < 3: return {"error": "give at least three Arabic words to check"}
         src = "Maktaba: %s text%s" % (b["kind"] or "", "; OCR must be checked against the scan (get_page_image) before quoting" if (b["kind"] or "").upper() == "OCR" else "")
         if page is None:
-            out = _check_book(((r["page"], r["text"] or "") for r in con.execute("SELECT page, text FROM pages WHERE book=? ORDER BY page", (b["id"],))), quote)
-            pr = {r["page"]: r["printed"] for p in out["places"] for r in con.execute("SELECT page, printed FROM pages WHERE book=? AND page=?", (b["id"], p["page"]))}
+            out = _check_book(((r["page"], r["text"] or "") for r in con.execute("SELECT page, text FROM allpages WHERE book=? ORDER BY page", (b["id"],))), quote)
+            pr = {r["page"]: r["printed"] for p in out["places"] for r in con.execute("SELECT page, printed FROM allpages WHERE book=? AND page=?", (b["id"], p["page"]))}
             for p in out["places"]: p["printed_page"] = pr.get(p["page"])
         else:
-            rows = con.execute("SELECT page, printed, text FROM pages WHERE book=? AND page BETWEEN ? AND ? ORDER BY page", (b["id"], int(page) - 1, int(page) + 1)).fetchall()
+            rows = con.execute("SELECT page, printed, text FROM allpages WHERE book=? AND page BETWEEN ? AND ? ORDER BY page", (b["id"], int(page) - 1, int(page) + 1)).fetchall()
             if not any(r["page"] == int(page) for r in rows): return {"error": "no such page in this book", "book": info}
             out = _check_page([(r["page"], r["text"] or "") for r in rows], int(page), quote)
             if out["found"]: out["printed_page"] = next(r["printed"] for r in rows if r["page"] == out["page"])
